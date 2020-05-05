@@ -1,0 +1,11 @@
+{
+  "name": "rustdocusaurus",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "deepmerge": "^4.2.2",
+    "jsdom": "^16.2.2",
+    "turndown": "^6.0.0"
+  }
+}
