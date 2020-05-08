@@ -1,7 +1,8 @@
+// Will also define the order in the sidebar
 const itemsReference = {
+  module: {},
   enum: [],
   fn: [],
-  module: {},
   struct: [],
   trait: [],
   type: [],

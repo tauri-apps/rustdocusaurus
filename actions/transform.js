@@ -1,10 +1,20 @@
 const jsdom = require("jsdom");
-const { JSDOM } = jsdom;
-const { clone, itemsReference } = require("./common");
-const keys = Object.keys(itemsReference);
-
 const TurndownService = require("turndown");
+const { clone, itemsReference } = require("../common");
+
+const keys = Object.keys(itemsReference);
+const { JSDOM } = jsdom;
+
 const turndownService = new TurndownService();
+
+// turndownService.addRule("pre", {
+//   filter: ["pre"],
+//   replacement: function (content) {
+//     return `\`\`\`rust
+// ${content}
+// \`\`\``;
+//   },
+// });
 
 turndownService.addRule("pre", {
   filter: ["pre"],
@@ -18,7 +28,7 @@ ${content}
 turndownService.addRule("code", {
   filter: ["code"],
   replacement: function (content) {
-    return `<code>${content}</code>`;
+    return `<span>${content}</span>`;
   },
 });
 
@@ -44,7 +54,8 @@ const serializeDOM = (dom) =>
     .replace(/^<html><head><\/head><body>/, "")
     .replace(/<\/body><\/html>$/, "")
     .replace(/<br>/g, "<br/>")
-    .replace(/<wbr>/g, "<wbr/>");
+    .replace(/<wbr>/g, "<wbr/>")
+    .replace(/_/g, "\\_");
 
 const transformLinks = (dom, crate) => {
   Array.from(dom.window.document.querySelectorAll("a")).forEach((anchor) => {
@@ -95,8 +106,8 @@ const transform = async (contents, crate) => {
           turndownService
             .turndown(serializeDOM(dom))
             .replace(/!\[/g, "	&#33;[")
-            .replace(/<(?!\/?code)/g, "&lt;")
-            .replace(/(?<!code)>/g, "&gt;"),
+            .replace(/<(?!\/?span)/g, "&lt;")
+            .replace(/(?<!span)>/g, "&gt;"),
       };
     });
     transformedContents[key] = await Promise.all(res);

@@ -1,6 +1,6 @@
 const fs = require("fs").promises;
 const merge = require("deepmerge");
-const { itemsReference, clone } = require("./common");
+const { itemsReference, clone } = require("../common");
 
 const isStorable = (node) =>
   !["all.html", "index.html", "sidebar-items.js"].includes(node);

@@ -1,7 +1,7 @@
 const { itemsReference } = require("./common");
 const keys = Object.keys(itemsReference);
 
-const generateSidebar = (contents, label) => {
+const generateSidebar = (contents, label, originPath) => {
   const out = {
     label,
     type: "category",
@@ -11,16 +11,13 @@ const generateSidebar = (contents, label) => {
     if (key === "module") {
       for (const path in contents.module) {
         const moduleLabel = path.split("/").pop();
-        out.items.push(generateSidebar(contents.module[path], moduleLabel));
+        out.items.push(generateSidebar(contents.module[path], moduleLabel, originPath));
       }
       return;
     }
     contents[key].forEach((item) => {
       out.items.push(
-        item.path.replace(
-          "/home/laegel/Workspace/perso/tauri/target/doc/",
-          `api/rust/`
-        ).replace(".html", "")
+        item.path.replace(originPath, `api/rust/`).replace(".html", "")
       );
     });
   });

@@ -1,34 +1,31 @@
-const jsdom = require("jsdom");
-const { JSDOM } = jsdom;
-const { itemsReference } = require("./common");
-const keys = Object.keys(itemsReference);
 const fs = require("fs").promises;
+const { itemsReference } = require("../common");
+const keys = Object.keys(itemsReference);
 
-const save = async (docs) => {
+const save = async (docs, originPath, targetPath) => {
   const promises = keys.map(async (key) => {
     if (key === "module") {
       for (const path in docs.module) {
-        await save(docs.module[path]);
+        await save(docs.module[path], originPath, targetPath);
       }
       return;
     }
-    const res = docs[key].map((item) => {
+    const res = docs[key].map(async (item) => {
       const path = item.path
-        .replace(
-          "/home/laegel/Workspace/perso/tauri/target/doc/",
-          "/home/laegel/Workspace/perso/tauri-docs/website/docs/api/rust/"
-        )
+        .replace(originPath, targetPath)
         .replace(/.html$/, ".md");
       const title = path.split("/").pop().replace(".md", "");
 
-      const buff = Buffer.from(path);
-      const id = buff.toString("base64");
       const content = `---
 title: "${title}"
 ---
 
 ${item.content}
       `;
+      const s = path.split("/");
+      s.pop();
+      const targetDirectory = s.join("/");
+      await fs.mkdir(targetDirectory, { recursive: true });
       return fs.writeFile(path, content);
     });
     await Promise.all(res);
