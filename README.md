@@ -1,0 +1,48 @@
+# rustdocusaurus
+
+Experiment to turn a rustdoc generated site into MDX content.
+
+## Usage
+
+```js
+const { transformDocs } = require("./main");
+const generateSidebar = require("./generateSidebar");
+const fs = require("fs").promises;
+
+const originPath = "/path/to/project/target/doc/";
+
+const targetPath =
+  "/path/to/docusaurus/website/docs/api/rust/";
+
+const sidebarPath =
+  "/path/to/docusaurus/website/sidebars.json";
+
+const linksRoot = "/docs/api/rust/";
+
+(async () => {
+  const sidebarItems = (
+    await Promise.all(
+      [
+        "crate1", // Specify which crates you want to process
+        "crate2",
+        "crate3"
+      ].map(async (crateName) => ({
+        crateName,
+        docs: await transformDocs(
+          originPath + crateName,
+          originPath,
+          targetPath
+        ),
+      }))
+    )
+  ).map((item) => generateSidebar(item.docs, item.crateName, originPath));
+
+  // Automatically add the sidebar items to Docusaurus sidebar file config
+  const sidebarContent = JSON.parse(await fs.readFile(sidebarPath, "utf-8"));
+  sidebarContent.docs[3].items[2].items = sidebarItems; // Specify where to put the items
+  fs.writeFile(sidebarPath, JSON.stringify(sidebarContent, null, 2));
+
+  console.log("Tasks completed!");
+})();
+
+```
