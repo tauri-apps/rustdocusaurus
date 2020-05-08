@@ -20,12 +20,13 @@ const targetPath =
 
 /*
 Where lives your sidebars config file
-Doesn't have to be JSON but it's easier to change programatically, 
+Doesn't have to be JSON but it's easier to change programmatically, 
 you may create your own saving method
 */
 const sidebarPath =
   "/path/to/docusaurus/website/sidebars.json";
 
+// rustdoc uses relative links for crate types relations
 const linksRoot = "/docs/api/rust/";
 
 (async () => {
