@@ -1,20 +1,12 @@
 const jsdom = require("jsdom");
 const TurndownService = require("turndown");
 const { clone, itemsReference } = require("../common");
+const pretty = require("pretty");
 
 const keys = Object.keys(itemsReference);
 const { JSDOM } = jsdom;
 
 const turndownService = new TurndownService();
-
-// turndownService.addRule("pre", {
-//   filter: ["pre"],
-//   replacement: function (content) {
-//     return `\`\`\`rust
-// ${content}
-// \`\`\``;
-//   },
-// });
 
 turndownService.addRule("pre", {
   filter: ["pre"],
@@ -25,10 +17,17 @@ ${content}
   },
 });
 
+// turndownService.addRule("pre", {
+//   filter: ["pre", "code"],
+//   replacement: function (content) {
+//     return `<div>${content}</div>`;
+//   },
+// });
+
 turndownService.addRule("code", {
   filter: ["code"],
   replacement: function (content) {
-    return `<span>${content}</span>`;
+    return `<div>${content}</div>`;
   },
 });
 
@@ -49,19 +48,21 @@ turndownService.addRule("em", {
 const isRelativeLink = (link) => !link.startsWith("http");
 
 const serializeDOM = (dom) =>
-  dom
-    .serialize()
-    .replace(/^<html><head><\/head><body>/, "")
-    .replace(/<\/body><\/html>$/, "")
-    .replace(/<br>/g, "<br/>")
-    .replace(/<wbr>/g, "<wbr/>")
-    .replace(/_/g, "\\_");
+  pretty(
+    dom
+      .serialize()
+      .replace(/^<html><head><\/head><body>/, "")
+      .replace(/<\/body><\/html>$/, "")
+      .replace(/<br>/g, "<br/>")
+      .replace(/<wbr>/g, "<wbr/>")
+      .replace(/_/g, "\\_")
+  );
 
 const transformLinks = (dom, crate) => {
   Array.from(dom.window.document.querySelectorAll("a")).forEach((anchor) => {
     if (isRelativeLink(anchor.href)) {
       // TO REFINE
-      anchor.href = `/api/rust/${crate}/` + anchor.href;
+      anchor.href = `/docs/api/rust/${crate}/` + anchor.href;
     }
   });
 };
@@ -100,14 +101,13 @@ const transform = async (contents, crate) => {
       transformLinks(dom, crate);
       return {
         path: item.path,
-        content:
-          // .replace(/{/g, "&#123;")
-          // .replace(/}/g, "&#125;"),
-          turndownService
-            .turndown(serializeDOM(dom))
-            .replace(/!\[/g, "	&#33;[")
-            .replace(/<(?!\/?span)/g, "&lt;")
-            .replace(/(?<!span)>/g, "&gt;"),
+        content: turndownService
+          .turndown(serializeDOM(dom))
+          .replace(/!\[/g, "&#33;[")
+          .replace(/<(?!\/?div)/g, "&lt;")
+          .replace(/(?<!div)(?<!")>/g, "&gt;")
+          .replace(/{/g, "&#123;")
+          .replace(/}/g, "&#125;"),
       };
     });
     transformedContents[key] = await Promise.all(res);

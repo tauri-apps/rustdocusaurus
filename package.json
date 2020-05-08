@@ -6,6 +6,7 @@
   "dependencies": {
     "deepmerge": "^4.2.2",
     "jsdom": "^16.2.2",
+    "pretty": "^2.0.0",
     "turndown": "^6.0.0"
   }
 }
