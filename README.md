@@ -11,7 +11,7 @@ const { transformDocs } = require("./main");
 const generateSidebar = require("./generateSidebar");
 const fs = require("fs").promises;
 
-// Where your docs live, should be the folder container the crates docs
+// Where your docs live, should be the folder containing the crates docs
 const originPath = "/path/to/project/target/doc/";
 
 // Where you'll save your MD files
