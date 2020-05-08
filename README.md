@@ -4,16 +4,25 @@ Experiment to turn a rustdoc generated site into MDX content.
 
 ## Usage
 
+**Once you have generated your Rust documentation**, you may use this kind of script:
+
 ```js
 const { transformDocs } = require("./main");
 const generateSidebar = require("./generateSidebar");
 const fs = require("fs").promises;
 
+// Where your docs live, should be the folder container the crates docs
 const originPath = "/path/to/project/target/doc/";
 
+// Where you'll save your MD files
 const targetPath =
   "/path/to/docusaurus/website/docs/api/rust/";
 
+/*
+Where lives your sidebars config file
+Doesn't have to be JSON but it's easier to change programatically, 
+you may create your own saving method
+*/
 const sidebarPath =
   "/path/to/docusaurus/website/sidebars.json";
 
