@@ -3,59 +3,29 @@ const TurndownService = require("turndown");
 const { clone, itemsReference } = require("../common");
 const pretty = require("pretty");
 
+// const Entities = require('html-entities').AllHtmlEntities;
+
+// const entities = new Entities();
+
+// const HTMLParser = require('node-html-parser');
+
+const unified = require("unified");
+const parse = require("rehype-parse");
+const toMdast = require("hast-util-to-mdast");
+const stringify = require("remark-stringify");
+
 const keys = Object.keys(itemsReference);
 const { JSDOM } = jsdom;
-
-const turndownService = new TurndownService();
-
-turndownService.addRule("pre", {
-  filter: ["pre"],
-  replacement: function (content) {
-    return `\`\`\`rust
-${content}
-\`\`\``;
-  },
-});
-
-// turndownService.addRule("pre", {
-//   filter: ["pre", "code"],
-//   replacement: function (content) {
-//     return `<div>${content}</div>`;
-//   },
-// });
-
-turndownService.addRule("code", {
-  filter: ["code"],
-  replacement: function (content) {
-    return `<div>${content}</div>`;
-  },
-});
-
-turndownService.addRule("br", {
-  filter: ["br"],
-  replacement: function (content) {
-    return `<br/>`;
-  },
-});
-
-turndownService.addRule("em", {
-  filter: ["em"],
-  replacement: function (content) {
-    return `<em>${content}</em>`;
-  },
-});
 
 const isRelativeLink = (link) => !link.startsWith("http");
 
 const serializeDOM = (dom) =>
   pretty(
-    dom
-      .serialize()
-      .replace(/^<html><head><\/head><body>/, "")
-      .replace(/<\/body><\/html>$/, "")
-      .replace(/<br>/g, "<br/>")
-      .replace(/<wbr>/g, "<wbr/>")
-      .replace(/_/g, "\\_")
+    dom.window.document.body.innerHTML
+    // .replace(/^<html><head><\/head><body>/, "")
+    // .replace(/<\/body><\/html>$/, "")
+    // .replace(/<br>/g, "<br/>")
+    // .replace(/<wbr>/g, "<wbr/>")
   );
 
 const transformLinks = (dom, crate) => {
@@ -99,15 +69,18 @@ const transform = async (contents, crate) => {
       removeRustdocTools(dom);
       // transformCodeBlocks(dom);
       transformLinks(dom, crate);
+
+      const serialized = serializeDOM(dom);
+
+      const hast = unified().use(parse).parse(serialized);
+
+      const mdast = toMdast(hast);
+
+      const doc = unified().use(stringify).stringify(mdast);
+
       return {
         path: item.path,
-        content: turndownService
-          .turndown(serializeDOM(dom))
-          .replace(/!\[/g, "&#33;[")
-          .replace(/<(?!\/?div)/g, "&lt;")
-          .replace(/(?<!div)(?<!")>/g, "&gt;")
-          .replace(/{/g, "&#123;")
-          .replace(/}/g, "&#125;"),
+        content: doc.replace(/!\[/g, "&#33;["),
       };
     });
     transformedContents[key] = await Promise.all(res);
