@@ -21,7 +21,7 @@ title: "${title}"
 ---
 
 ${item.content}
-      `;
+`;
       const s = path.split("/");
       s.pop();
       const targetDirectory = s.join("/");

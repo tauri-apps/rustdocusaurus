@@ -80,7 +80,7 @@ const transform = async (contents, crate) => {
 
       return {
         path: item.path,
-        content: doc.replace(/!\[/g, "&#33;["),
+        content: doc.replace(/!\[/g, "&#33;[").replace(/\s*$/g, ""),
       };
     });
     transformedContents[key] = await Promise.all(res);
