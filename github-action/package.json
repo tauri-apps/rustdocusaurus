@@ -1,0 +1,13 @@
+{
+  "name": "rustdocusaurus-action",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "run-source": "node index.js",
+    "build": "ncc build index.js -o dist"
+  },
+  "dependencies": {
+    "@actions/core": "^1.2.4",
+    "@zeit/ncc": "^0.22.3"
+  }
+}

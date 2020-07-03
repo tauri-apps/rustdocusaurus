@@ -1,0 +1,30 @@
+name: test action
+
+on:
+  pull_request:
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout tauri-docs
+        uses: actions/checkout@v2
+        with:
+          repository: tauri-apps/tauri-docs
+          path: tauri-docs
+      - name: checkout tauri
+        uses: actions/checkout@v2
+        with:
+          repository: tauri-apps/tauri
+          path: tauri
+      - name: generate rust docs
+        working-directory: tauri
+        run: cargo doc
+      - name: run rustdocusaurus
+        uses: ./github-action
+        with:
+          originPath: ./tauri/target/docs/
+          targetPath: ./tauri-docs/docs/api/rust/
+          sidebarPath: ./tauri-docs/sidebars.json
+          linksRoot: /docs/api/rust/
+          cratesToProcess: "tauri,tauri_api,tauri_utils"

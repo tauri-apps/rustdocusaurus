@@ -1,0 +1,16 @@
+name: 'rustdocusaurus'
+description: 'Experiment to turn a rustdoc generated site into MDX content.'
+inputs:
+  originPath:
+    required: true
+  targetPath:
+    required: true
+  sidebarPath:
+    required: true
+  linksRoot:
+    required: true
+  cratesToProcess:
+    required: true
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
