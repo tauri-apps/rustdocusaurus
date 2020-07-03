@@ -18,6 +18,10 @@ jobs:
         with:
           repository: tauri-apps/tauri
           path: tauri
+      - name: install webkit2gtk
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y webkit2gtk-4.0
       - name: generate rust docs
         working-directory: tauri
         run: cargo doc --no-deps
