@@ -7,6 +7,7 @@ jobs:
   update-docs:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: checkout tauri-docs
         uses: actions/checkout@v2
         with:
