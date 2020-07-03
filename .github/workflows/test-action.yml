@@ -28,7 +28,7 @@ jobs:
       - name: run rustdocusaurus
         uses: ./github-action
         with:
-          originPath: ./tauri/target/docs/
+          originPath: ./tauri/target/doc/
           targetPath: ./tauri-docs/docs/api/rust/
           sidebarPath: ./tauri-docs/sidebars.json
           linksRoot: /docs/api/rust/
