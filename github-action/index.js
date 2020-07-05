@@ -23,6 +23,12 @@ const fs = require("fs").promises;
 
     const cratesToProcess = core.getInput("cratesToProcess").split(",");
 
+    await Promise.all(
+      cratesToProcess.map((crateName) =>
+        fs.rmdir(targetPath + crateName, { recursive: true })
+      )
+    );
+
     const sidebarItems = (
       await Promise.all(
         cratesToProcess.map(async (crateName) => ({
