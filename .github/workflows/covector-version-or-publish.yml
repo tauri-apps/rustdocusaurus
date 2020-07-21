@@ -31,7 +31,7 @@ jobs:
       - name: create pull request
         id: cpr
         uses: tauri-apps/create-pull-request@v2.8.0
-        if: ${{ steps.covector.outputs.command }} == 'version'
+        if: steps.covector.outputs.command == 'version'
         with:
           title: "Publish New Versions"
           commit-message: "publish new versions"
