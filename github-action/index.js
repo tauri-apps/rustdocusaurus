@@ -44,7 +44,11 @@ const fs = require("fs").promises;
 
     // Automatically add the sidebar items to Docusaurus sidebar file config
     const sidebarContent = JSON.parse(await fs.readFile(sidebarPath, "utf-8"));
-    sidebarContent.docs[3].items[2].items = sidebarItems; // Specify where to put the items
+    const index = sidebarContent.docs[3].items
+      .map((row, index) => (row.label && row.label === "Rust" ? index : 0))
+      .reduce((accumulator, value) => accumulator + value);
+    sidebarContent.docs[3].items[index].items = sidebarItems; // Specify where to put the items
+    
     fs.writeFile(sidebarPath, JSON.stringify(sidebarContent, null, 2));
 
     console.log("Tasks completed!");
