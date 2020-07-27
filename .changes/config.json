@@ -21,7 +21,8 @@
         "git tag v${ pkgFile.versionMajor } -f",
         "git tag v${ pkgFile.versionMajor }.${ pkgFile.versionMinor } -f",
         "git push --tags -f"
-      ]
+      ],
+      "dependencies": ["script"]
     }
   }
 }
