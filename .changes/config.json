@@ -1,0 +1,27 @@
+{
+  "gitSiteUrl": "https://github.com/tauri-apps/rustdocusaurus",
+  "pkgManagers": {
+    "javascript": {
+      "version": true,
+      "publish": true
+    }
+  },
+  "packages": {
+    "script": {
+      "path": "./",
+      "manager": "javascript",
+      "publish": false
+    },
+    "action": {
+      "path": "./github-action",
+      "manager": "javascript",
+      "preversion": ["yarn", "yarn build"],
+      "getPublishedVersion": "git tag v${ pkgFile.version } 2> OUT= || echo ${ pkgFile.version }",
+      "publish": [
+        "git tag v${ pkgFile.versionMajor } -f",
+        "git tag v${ pkgFile.versionMajor }.${ pkgFile.versionMinor } -f",
+        "git push --tags -f"
+      ]
+    }
+  }
+}

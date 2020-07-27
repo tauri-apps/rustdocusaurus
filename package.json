@@ -14,5 +14,8 @@
     "remark-stringify": "^8.0.0",
     "turndown": "^6.0.0",
     "unified": "^9.0.0"
+  },
+  "devDependencies": {
+    "covector": "^0.3.0"
   }
 }
