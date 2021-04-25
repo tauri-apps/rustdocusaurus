@@ -6,6 +6,9 @@ const itemsReference = {
   struct: [],
   trait: [],
   type: [],
+  macro: [],
+  constant: [],
+  attr: []
 };
 
 const clone = (item) => JSON.parse(JSON.stringify(item));
