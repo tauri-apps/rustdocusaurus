@@ -32,4 +32,4 @@ jobs:
           targetPath: ./tauri-docs/docs/api/rust/
           sidebarPath: ./tauri-docs/sidebars.json
           linksRoot: /docs/api/rust/
-          cratesToProcess: "tauri,tauri_api,tauri_utils"
+          cratesToProcess: "tauri"
