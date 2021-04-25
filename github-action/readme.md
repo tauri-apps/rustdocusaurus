@@ -10,7 +10,7 @@ This will let you run this script as a Github Action. The following are the requ
         targetPath: ./tauri-docs/docs/api/rust/
         sidebarPath: ./tauri-docs/sidebars.json
         linksRoot: /docs/api/rust/
-        cratesToProcess: "tauri,tauri_api,tauri_utils"
+        cratesToProcess: "tauri"
 ```
 
 - `originPath` is the folder containing rustdoc generated files, "/path/to/tauri/target/doc/"
