@@ -47,9 +47,10 @@ const removeRustdocTools = (dom) => {
 };
 
 const transformCodeBlocks = (dom) => {
-  Array.from(dom.window.document.querySelectorAll("pre")).forEach((element) =>
-    element.parentNode.removeChild(element)
-  );
+  Array.from(dom.window.document.querySelectorAll("pre")).forEach((element) => {
+    element.prepend(dom.window.document.createTextNode("```\r"));
+    element.append(dom.window.document.createTextNode("\r```"));
+  });
 };
 
 const transform = async (contents, crate) => {
@@ -67,7 +68,7 @@ const transform = async (contents, crate) => {
     const res = transformedContents[key].map((item) => {
       const dom = new JSDOM(item.content);
       removeRustdocTools(dom);
-      // transformCodeBlocks(dom);
+      transformCodeBlocks(dom);
       transformLinks(dom, crate);
 
       const serialized = serializeDOM(dom);
@@ -76,7 +77,14 @@ const transform = async (contents, crate) => {
 
       const mdast = toMdast(hast);
 
-      const doc = unified().use(stringify).stringify(mdast);
+      let doc = unified().use(stringify).stringify(mdast);
+
+      doc
+        .match(/ *```[\s\S]*```/g)
+        .map((codeblock) => [codeblock, codeblock.replace(/^ {4}/gm, "")])
+        .forEach(([original, replacement]) => {
+          doc = doc.replace(original, replacement);
+        });
 
       return {
         path: item.path,
