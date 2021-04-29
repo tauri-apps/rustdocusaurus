@@ -48,7 +48,7 @@ const removeRustdocTools = (dom) => {
 
 const transformCodeBlocks = (dom) => {
   Array.from(dom.window.document.querySelectorAll("pre")).forEach((element) => {
-    element.prepend(dom.window.document.createTextNode("```\r"));
+    element.prepend(dom.window.document.createTextNode("```rs\r"));
     element.append(dom.window.document.createTextNode("\r```"));
   });
 };
@@ -80,7 +80,7 @@ const transform = async (contents, crate) => {
       let doc = unified().use(stringify).stringify(mdast);
 
       doc
-        .match(/ *```[\s\S]*```/g)
+        .match(/ *```rs[\s\S]*```/g)
         .map((codeblock) => [codeblock, codeblock.replace(/^ {4}/gm, "")])
         .forEach(([original, replacement]) => {
           doc = doc.replace(original, replacement);
