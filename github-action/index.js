@@ -41,15 +41,8 @@ const fs = require("fs").promises;
         }))
       )
     ).map((item) => generateSidebar(item.docs, item.crateName, originPath));
-
-    // Automatically add the sidebar items to Docusaurus sidebar file config
-    const sidebarContent = JSON.parse(await fs.readFile(sidebarPath, "utf-8"));
-    const index = sidebarContent.docs[3].items
-      .map((row, index) => (row.label && row.label === "Rust" ? index : 0))
-      .reduce((accumulator, value) => accumulator + value);
-    sidebarContent.docs[3].items[index].items = sidebarItems; // Specify where to put the items
     
-    fs.writeFile(sidebarPath, JSON.stringify(sidebarContent, null, 2));
+    fs.writeFile(sidebarPath, JSON.stringify(sidebarItems, null, 2));
 
     console.log("Tasks completed!");
   } catch (error) {
