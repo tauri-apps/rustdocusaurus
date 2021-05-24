@@ -30,6 +30,6 @@ jobs:
         with:
           originPath: ./tauri/target/doc/
           targetPath: ./tauri-docs/docs/api/rust/
-          sidebarPath: ./tauri-docs/sidebars.json
-          linksRoot: /docs/api/rust/
+          sidebarPath: ./tauri-docs/sidebars/rustdoc.json
+          linksRoot: ""
           cratesToProcess: "tauri"
