@@ -32,7 +32,7 @@ const transformLinks = (dom, crate) => {
   Array.from(dom.window.document.querySelectorAll("a")).forEach((anchor) => {
     if (isRelativeLink(anchor.href)) {
       // TO REFINE
-      anchor.href = `/docs/api/rust/${crate}/` + anchor.href;
+      anchor.href = `/docs/api/rust/${crate}/` + anchor.href.replace(".html", "");
     }
   });
 };
