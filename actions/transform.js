@@ -2,6 +2,7 @@ const jsdom = require("jsdom");
 const TurndownService = require("turndown");
 const { clone, itemsReference } = require("../common");
 const pretty = require("pretty");
+const { removeChildren } = require("../utils/dom");
 
 // const Entities = require('html-entities').AllHtmlEntities;
 
@@ -32,13 +33,70 @@ const transformLinks = (dom, crate) => {
   Array.from(dom.window.document.querySelectorAll("a")).forEach((anchor) => {
     if (isRelativeLink(anchor.href)) {
       // TO REFINE
-      anchor.href = `/docs/api/rust/${crate}/` + anchor.href.replace(".html", "");
+      anchor.href =
+        `/docs/api/rust/${crate}/` + anchor.href.replace(".html", "");
     }
   });
 };
 
+const transformSourceLinks = (dom, crate, repositoryInfo) => {
+  const getGitHubURL = (fileName) => {
+    return [
+      `https://github.com`,
+      repositoryInfo.owner,
+      repositoryInfo.project,
+      "blob",
+      repositoryInfo.revision,
+      fileName,
+    ].join("/");
+  };
+
+  Array.from(dom.window.document.querySelectorAll("h3")).forEach((header) => {
+    const srclink = header.querySelector("a.srclink");
+    if (!srclink) {
+      return;
+    }
+    const parts = srclink.href.split("/");
+    const file = srclink.href
+      .replace(`../src/${crate}/`, "")
+      .replace(".html", "")
+      .replace("#", "#L");
+    srclink.textContent = parts[parts.length - 1]
+      .replace(".html", "")
+      .replace(/#.+/, "");
+
+    const functionName = header.querySelector("code > a").textContent;
+    const functionPrototype = header.textContent;
+
+    const functionNameWrapper = dom.window.document.createElement("code");
+    const prototype = dom.window.document.createElement("pre");
+    const wrapper = dom.window.document.createElement("span");
+    const text = dom.window.document.createTextNode("Defined in: ");
+
+    functionNameWrapper.textContent = functionName;
+    prototype.textContent = functionPrototype;
+    srclink.href = getGitHubURL(`core/${crate}/src/${file}`);
+    srclink.title = "";
+
+    removeChildren(header);
+    header.appendChild(functionNameWrapper);
+    wrapper.appendChild(prototype);
+    wrapper.appendChild(text);
+    wrapper.appendChild(srclink);
+
+    header.nextElementSibling.appendChild(wrapper);
+  });
+};
+
+const transformMainHeader = (dom) => {
+  const header = dom.window.document.querySelector("h1");
+  header.textContent = Array.from(header.querySelectorAll("span")).map(
+    (span) => span.textContent
+  );
+};
+
 const removeRustdocTools = (dom) => {
-  const selectors = ["#render-detail", "a.srclink", "a.anchor"];
+  const selectors = ["#render-detail", "a.anchor", ".loading-content"];
   selectors.forEach((selector) => {
     Array.from(
       dom.window.document.querySelectorAll(selector)
@@ -53,7 +111,7 @@ const transformCodeBlocks = (dom) => {
   });
 };
 
-const transform = async (contents, crate) => {
+const transform = async (contents, crate, repositoryInfo) => {
   const transformedContents = clone(contents);
   const promises = keys.map(async (key) => {
     if (key === "module") {
@@ -67,6 +125,10 @@ const transform = async (contents, crate) => {
     }
     const res = transformedContents[key].map((item) => {
       const dom = new JSDOM(item.content);
+      if (repositoryInfo) {
+        transformSourceLinks(dom, crate, repositoryInfo);
+      }
+      transformMainHeader(dom);
       removeRustdocTools(dom);
       transformCodeBlocks(dom);
       transformLinks(dom, crate);
