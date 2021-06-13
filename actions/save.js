@@ -17,8 +17,16 @@ const save = async (docs, originPath, targetPath, crate) => {
         .replace(/.html$/, ".md");
       const title = path.split("/").pop().replace(".md", "");
 
+      const structName = item.path
+        .replace(originPath, "")
+        .replace(/.html$/, "")
+        .split("/");
+      structName[structName.length - 1] = structName[structName.length - 1]
+        .split(".")
+        .pop();
+
       const content = `---
-title: ${capitalize(key)} ${crate}::${title.split(".").pop()}
+title: ${capitalize(key) + " " + structName.join("::")}
 sidebar_label: ${title}
 ---
 

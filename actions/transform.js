@@ -51,7 +51,7 @@ const transformSourceLinks = (dom, crate, repositoryInfo) => {
     ].join("/");
   };
 
-  Array.from(dom.window.document.querySelectorAll("h3")).forEach((header) => {
+  const transformHeader = (header) => {
     const srclink = header.querySelector("a.srclink");
     if (!srclink) {
       return;
@@ -63,10 +63,16 @@ const transformSourceLinks = (dom, crate, repositoryInfo) => {
       .replace("#", "#L");
     srclink.textContent = parts[parts.length - 1]
       .replace(".html", "")
-      .replace(/#.+/, "");
+      .replace(/#(.+)/, ":$1");
 
     const functionName = header.querySelector("code > a").textContent;
-    const functionPrototype = header.textContent;
+    let functionPrototype = header
+      .querySelector("code")
+      .textContent.replace(/\s{4,5}/g, "\n    ");
+    if (functionPrototype.match(/\(\n/)) {
+      functionPrototype = functionPrototype.replace(") ->", "\n) ->");
+    }
+    functionPrototype = functionPrototype.replace("where", "\nwhere");
 
     const functionNameWrapper = dom.window.document.createElement("code");
     const prototype = dom.window.document.createElement("pre");
@@ -85,7 +91,14 @@ const transformSourceLinks = (dom, crate, repositoryInfo) => {
     wrapper.appendChild(srclink);
 
     header.nextElementSibling.appendChild(wrapper);
-  });
+  };
+
+  Array.from(dom.window.document.querySelectorAll("h3")).forEach(
+    transformHeader
+  );
+  Array.from(dom.window.document.querySelectorAll("h4")).forEach(
+    transformHeader
+  );
 };
 
 const transformMainHeader = (dom) => {
