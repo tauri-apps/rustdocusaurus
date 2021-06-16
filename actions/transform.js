@@ -2,7 +2,7 @@ const jsdom = require("jsdom");
 const TurndownService = require("turndown");
 const { clone, itemsReference } = require("../common");
 const pretty = require("pretty");
-const { removeChildren } = require("../utils/dom");
+const { removeChildren, insertAfter } = require("../utils/dom");
 
 // const Entities = require('html-entities').AllHtmlEntities;
 
@@ -66,9 +66,10 @@ const transformSourceLinks = (dom, crate, repositoryInfo) => {
       .replace(/#(.+)/, ":$1");
 
     const functionName = header.querySelector("code > a").textContent;
+
     let functionPrototype = header
       .querySelector("code")
-      .textContent.replace(/\s{4,5}/g, "\n    ");
+      .innerHTML.replace(/\s{4,5}/g, "\n    ");
     if (functionPrototype.match(/\(\n/)) {
       functionPrototype = functionPrototype.replace(") ->", "\n) ->");
     }
@@ -76,21 +77,28 @@ const transformSourceLinks = (dom, crate, repositoryInfo) => {
 
     const functionNameWrapper = dom.window.document.createElement("code");
     const prototype = dom.window.document.createElement("pre");
-    const wrapper = dom.window.document.createElement("span");
+    const wrapper = dom.window.document.createElement("i");
     const text = dom.window.document.createTextNode("Defined in: ");
 
     functionNameWrapper.textContent = functionName;
-    prototype.textContent = functionPrototype;
+    prototype.innerHTML = functionPrototype;
     srclink.href = getGitHubURL(`core/${crate}/src/${file}`);
     srclink.title = "";
 
     removeChildren(header);
     header.appendChild(functionNameWrapper);
-    wrapper.appendChild(prototype);
     wrapper.appendChild(text);
     wrapper.appendChild(srclink);
 
-    header.nextElementSibling.appendChild(wrapper);
+    insertAfter(dom.window.document, prototype, header);
+
+    insertAfter(
+      dom.window.document,
+      wrapper,
+      prototype.nextSibling.classList.contains("docblock")
+        ? prototype.nextSibling
+        : prototype
+    );
   };
 
   Array.from(dom.window.document.querySelectorAll("h3")).forEach(
@@ -131,7 +139,8 @@ const transform = async (contents, crate, repositoryInfo) => {
       for (const path in transformedContents.module) {
         transformedContents.module[path] = await transform(
           transformedContents.module[path],
-          crate
+          crate,
+          repositoryInfo
         );
       }
       return;
