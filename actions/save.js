@@ -28,6 +28,7 @@ const save = async (docs, originPath, targetPath, crate) => {
       const content = `---
 title: ${capitalize(key) + " " + structName.join("::")}
 sidebar_label: ${title}
+custom_edit_url: null
 ---
 
 ${item.content}
