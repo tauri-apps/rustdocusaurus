@@ -11,7 +11,7 @@ const getRepositoryInfo = async (path) => {
   const repoOwnership = getCleanedResult(
     await exec("git remote get-url origin", { cwd: path })
   )
-    .replace("git@github.com:", "")
+    .match(/(?:https:\/\/github.com\/|git@github\.com:)(.*).git/)[1]
     .split("/");
   return {
     revision: getCleanedResult(
