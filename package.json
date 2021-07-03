@@ -15,7 +15,14 @@
     "turndown": "^6.0.0",
     "unified": "^9.0.0"
   },
+  "scripts": {
+    "pre-commit": "cd github-action && yarn build"
+  },
   "devDependencies": {
-    "covector": "^0.3.0"
-  }
+    "covector": "^0.3.0",
+    "pre-commit": "^1.2.2"
+  },
+  "pre-commit": [
+    "pre-commit"
+  ]
 }
