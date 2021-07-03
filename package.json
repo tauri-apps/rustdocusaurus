@@ -16,13 +16,15 @@
     "unified": "^9.0.0"
   },
   "scripts": {
-    "pre-commit": "cd github-action && yarn build"
+    "pre-commit": "cd github-action && yarn build",
+    "tag": "git tag v1 -f"
   },
   "devDependencies": {
     "covector": "^0.3.0",
     "pre-commit": "^1.2.2"
   },
   "pre-commit": [
-    "pre-commit"
+    "pre-commit",
+    "tag"
   ]
 }
