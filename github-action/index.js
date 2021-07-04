@@ -4,7 +4,7 @@ const generateSidebar = require("../generateSidebar");
 const fs = require("fs").promises;
 
 (async () => {
-  // try {
+  try {
     // Where your docs live, should be the folder containing the crates docs
     const originPath = core.getInput("originPath"); // e.g. "/path/to/project/target/doc/";
 
@@ -45,7 +45,8 @@ const fs = require("fs").promises;
     fs.writeFile(sidebarPath, JSON.stringify(sidebarItems, null, 2));
 
     console.log("Tasks completed!");
-  // } catch (error) {
-  //   core.setFailed(error.message);
-  // }
+  } catch (error) {
+    core.debug(error.stack);
+    core.setFailed(error.message);
+  }
 })();
