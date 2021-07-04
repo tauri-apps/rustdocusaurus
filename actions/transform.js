@@ -3,12 +3,6 @@ const { clone, itemsReference } = require("../common");
 const pretty = require("pretty");
 const { removeChildren, insertAfter } = require("../utils/dom");
 
-// const Entities = require('html-entities').AllHtmlEntities;
-
-// const entities = new Entities();
-
-// const HTMLParser = require('node-html-parser');
-
 const unified = require("unified");
 const parse = require("rehype-parse");
 const toMdast = require("hast-util-to-mdast");
@@ -22,16 +16,11 @@ const isRelativeLink = (link) => !link.startsWith("http");
 const serializeDOM = (dom) =>
   pretty(
     dom.window.document.body.innerHTML
-    // .replace(/^<html><head><\/head><body>/, "")
-    // .replace(/<\/body><\/html>$/, "")
-    // .replace(/<br>/g, "<br/>")
-    // .replace(/<wbr>/g, "<wbr/>")
   );
 
 const transformLinks = (dom, crate) => {
   Array.from(dom.window.document.querySelectorAll("a")).forEach((anchor) => {
     if (isRelativeLink(anchor.href)) {
-      // TO REFINE
       anchor.href =
         `/docs/api/rust/${crate}/` + anchor.href.replace(".html", "");
     }
@@ -80,7 +69,7 @@ const transformSourceLinks = (dom, crate, repositoryInfo) => {
     }
     functionPrototype = functionPrototype
       .replace("where", "\nwhere")
-      .replace("]", "]\n");
+      .replace(/(#\[(?:[^\]]*)])/, "$1\n");
 
     const functionNameWrapper = dom.window.document.createElement("code");
     const prototype = dom.window.document.createElement("pre");
@@ -136,7 +125,7 @@ const removeRustdocTools = (dom) => {
 
 const transformCodeBlocks = (dom) => {
   Array.from(dom.window.document.querySelectorAll("pre")).forEach((element) => {
-    element.innerHTML = element.innerHTML.replace("]", "]\n");
+    element.innerHTML = element.innerHTML.replace(/(#\[(?:[^\]]*)])/, "$1\n");
     element.prepend(dom.window.document.createTextNode("```rs\r"));
     element.append(dom.window.document.createTextNode("\r```"));
   });

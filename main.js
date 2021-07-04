@@ -4,7 +4,6 @@ const transform = require("./actions/transform");
 const save = require("./actions/save");
 
 const util = require("util");
-const { crates } = require("./common");
 const { readFile } = require("fs").promises;
 const exec = util.promisify(require("child_process").exec);
 
@@ -33,13 +32,7 @@ const getAllCrates = async (originPath) => {
   );
 };
 
-const storeCrates = async (originPath) => {
-  const foundCrates = await getAllCrates(originPath);
-  foundCrates.forEach((crate) => crates.push(crate));
-};
-
 const transformDocs = async (cratePath, originPath, targetPath) => {
-  storeCrates(originPath);
   const crateName = cratePath.split("/").pop();
 
   const repositoryInfo = await getRepositoryInfo(cratePath);
