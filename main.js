@@ -4,6 +4,8 @@ const transform = require("./actions/transform");
 const save = require("./actions/save");
 
 const util = require("util");
+const { crates } = require("./common");
+const { readFile } = require("fs").promises;
 const exec = util.promisify(require("child_process").exec);
 
 const getCleanedResult = (result) => result.stdout.replace("\n", "");
@@ -11,7 +13,8 @@ const getRepositoryInfo = async (path) => {
   const repoOwnership = getCleanedResult(
     await exec("git remote get-url origin", { cwd: path })
   )
-    .match(/(?:https:\/\/github.com\/|git@github\.com:)(.*).git/)[1]
+    .match(/(?:https:\/\/github.com\/|git@github\.com:)(.*)/)[1]
+    .replace(".git", "")
     .split("/");
   return {
     revision: getCleanedResult(
@@ -22,7 +25,21 @@ const getRepositoryInfo = async (path) => {
   };
 };
 
+const getAllCrates = async (originPath) => {
+  return JSON.parse(
+    (await readFile(originPath + "crates.js", "utf8"))
+      .replace("window.ALL_CRATES = ", "")
+      .replace(";", "")
+  );
+};
+
+const storeCrates = async (originPath) => {
+  const foundCrates = await getAllCrates(originPath);
+  foundCrates.forEach((crate) => crates.push(crate));
+};
+
 const transformDocs = async (cratePath, originPath, targetPath) => {
+  storeCrates(originPath);
   const crateName = cratePath.split("/").pop();
 
   const repositoryInfo = await getRepositoryInfo(cratePath);

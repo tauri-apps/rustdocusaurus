@@ -1,5 +1,4 @@
 const jsdom = require("jsdom");
-const TurndownService = require("turndown");
 const { clone, itemsReference } = require("../common");
 const pretty = require("pretty");
 const { removeChildren, insertAfter } = require("../utils/dom");
@@ -39,6 +38,13 @@ const transformLinks = (dom, crate) => {
   });
 };
 
+const getFilePathInCrate = (file) => {
+  const parts = file.match(/(?:\.\.\/)+src\/([^\/]*)/)
+  const targetCrate = parts[parts.length - 1].replace(/_/g, "-");
+  const filePath = file.replace(/(?:\.\.\/)+src\/(?:.*)\//, "");
+  return `core/${targetCrate}/src/${filePath}`;
+};
+
 const transformSourceLinks = (dom, crate, repositoryInfo) => {
   const getGitHubURL = (fileName) => {
     return [
@@ -58,7 +64,6 @@ const transformSourceLinks = (dom, crate, repositoryInfo) => {
     }
     const parts = srclink.href.split("/");
     const file = srclink.href
-      .replace(`../src/${crate}/`, "")
       .replace(".html", "")
       .replace("#", "#L");
     srclink.textContent = parts[parts.length - 1]
@@ -73,7 +78,9 @@ const transformSourceLinks = (dom, crate, repositoryInfo) => {
     if (functionPrototype.match(/\(\n/)) {
       functionPrototype = functionPrototype.replace(") ->", "\n) ->");
     }
-    functionPrototype = functionPrototype.replace("where", "\nwhere");
+    functionPrototype = functionPrototype
+      .replace("where", "\nwhere")
+      .replace("]", "]\n");
 
     const functionNameWrapper = dom.window.document.createElement("code");
     const prototype = dom.window.document.createElement("pre");
@@ -82,7 +89,9 @@ const transformSourceLinks = (dom, crate, repositoryInfo) => {
 
     functionNameWrapper.textContent = functionName;
     prototype.innerHTML = functionPrototype;
-    srclink.href = getGitHubURL(`core/${crate}/src/${file}`);
+    srclink.href = isRelativeLink(srclink.href)
+      ? getGitHubURL(getFilePathInCrate(file))
+      : srclink.href;
     srclink.title = "";
 
     removeChildren(header);
@@ -127,6 +136,7 @@ const removeRustdocTools = (dom) => {
 
 const transformCodeBlocks = (dom) => {
   Array.from(dom.window.document.querySelectorAll("pre")).forEach((element) => {
+    element.innerHTML = element.innerHTML.replace("]", "]\n");
     element.prepend(dom.window.document.createTextNode("```rs\r"));
     element.append(dom.window.document.createTextNode("\r```"));
   });

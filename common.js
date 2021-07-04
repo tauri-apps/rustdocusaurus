@@ -1,4 +1,4 @@
-// Will also define the order in the sidebar
+// Modified by side-effect; will also define the order in the sidebar
 const itemsReference = {
   module: {},
   enum: [],
@@ -8,7 +8,7 @@ const itemsReference = {
   type: [],
   macro: [],
   constant: [],
-  attr: []
+  attr: [],
 };
 
 const clone = (item) => JSON.parse(JSON.stringify(item));
