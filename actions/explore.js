@@ -19,6 +19,8 @@ const explore = async (directory) => {
       items.module[path] = subItems;
     } else if (isStorable(node)) {
       items[determineType(node)].push(path);
+    } else if (node === "all.html") {
+      items.index.push(path);
     }
     return items;
   });

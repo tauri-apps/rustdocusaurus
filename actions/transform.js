@@ -13,10 +13,7 @@ const { JSDOM } = jsdom;
 
 const isRelativeLink = (link) => !link.startsWith("http");
 
-const serializeDOM = (dom) =>
-  pretty(
-    dom.window.document.body.innerHTML
-  );
+const serializeDOM = (dom) => pretty(dom.window.document.body.innerHTML);
 
 const transformLinks = (dom, crate) => {
   Array.from(dom.window.document.querySelectorAll("a")).forEach((anchor) => {
@@ -28,7 +25,7 @@ const transformLinks = (dom, crate) => {
 };
 
 const getFilePathInCrate = (file) => {
-  const parts = file.match(/(?:\.\.\/)+src\/([^\/]*)/)
+  const parts = file.match(/(?:\.\.\/)+src\/([^\/]*)/);
   const targetCrate = parts[parts.length - 1].replace(/_/g, "-");
   const filePath = file.replace(/(?:\.\.\/)+src\/(?:.*)\//, "");
   return `core/${targetCrate}/src/${filePath}`;
@@ -52,9 +49,7 @@ const transformSourceLinks = (dom, crate, repositoryInfo) => {
       return;
     }
     const parts = srclink.href.split("/");
-    const file = srclink.href
-      .replace(".html", "")
-      .replace("#", "#L");
+    const file = srclink.href.replace(".html", "").replace("#", "#L");
     srclink.textContent = parts[parts.length - 1]
       .replace(".html", "")
       .replace(/#(.+)/, ":$1");
@@ -162,12 +157,15 @@ const transform = async (contents, crate, repositoryInfo) => {
 
       let doc = unified().use(stringify).stringify(mdast);
 
-      doc
-        .match(/ *```rs[\s\S]*```/g)
-        .map((codeblock) => [codeblock, codeblock.replace(/^ {4}/gm, "")])
-        .forEach(([original, replacement]) => {
-          doc = doc.replace(original, replacement);
-        });
+      const docBlocks = doc.match(/ *```rs[\s\S]*```/g);
+
+      if (docBlocks) {
+        docBlocks
+          .map((codeblock) => [codeblock, codeblock.replace(/^ {4}/gm, "")])
+          .forEach(([original, replacement]) => {
+            doc = doc.replace(original, replacement);
+          });
+      }
 
       return {
         path: item.path,

@@ -6,6 +6,14 @@ const keys = Object.keys(itemsReference);
 
 const { JSDOM } = jsdom;
 
+const getItemFromPath = async (path) => {
+  const html = await fs.readFile(path, "utf-8");
+  return {
+    path,
+    content: new JSDOM(html),
+  };
+};
+
 const extract = async (docs) => {
   const extractedContent = clone(docs);
   const promises = keys.map(async (key) => {
@@ -17,16 +25,9 @@ const extract = async (docs) => {
       }
       return;
     }
-    const res = extractedContent[key].map(async (path) => {
-      const html = await fs.readFile(path, "utf-8");
+    const res = extractedContent[key].map(getItemFromPath);
 
-      return {
-        path,
-        content: new JSDOM(html),
-      };
-    });
-
-    extractedContent[key] = (await Promise.all(res))
+    return extractedContent[key] = (await Promise.all(res))
       .filter((item) => item.content.window.document.getElementById("main"))
       .map(({ path, content }) => ({
         path,

@@ -1,5 +1,6 @@
 // Modified by side-effect; will also define the order in the sidebar
 const itemsReference = {
+  index: [],
   module: {},
   enum: [],
   fn: [],
