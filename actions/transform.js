@@ -109,8 +109,23 @@ const transformMainHeader = (dom) => {
   );
 };
 
+const transformSecondaryHeaders = (dom) => {
+  Array.from(dom.window.document.querySelectorAll("h1:not(.fqn)")).forEach(
+    (header) => {
+      const newNode = dom.window.document.createElement("h2");
+      newNode.textContent = header.textContent;
+      header.parentNode.replaceChild(newNode, header);
+    }
+  );
+};
+
 const removeRustdocTools = (dom) => {
-  const selectors = ["#render-detail", "a.anchor", ".loading-content"];
+  const selectors = [
+    "h1 .srclink",
+    "#render-detail",
+    "a.anchor",
+    ".loading-content",
+  ];
   selectors.forEach((selector) => {
     Array.from(
       dom.window.document.querySelectorAll(selector)
@@ -144,8 +159,9 @@ const transform = async (contents, crate, repositoryInfo) => {
       if (repositoryInfo) {
         transformSourceLinks(dom, crate, repositoryInfo);
       }
-      transformMainHeader(dom);
       removeRustdocTools(dom);
+      transformMainHeader(dom);
+      transformSecondaryHeaders(dom);
       transformCodeBlocks(dom);
       transformLinks(dom, crate);
 
